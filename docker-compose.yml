@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  api:
+    depends_on:
+      - postgres_container_2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    ports:
+      - 3335:3335
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres_password@postgres_container_2:5432/pos-tech-db
+    links:
+      - postgres_container_2:postgres_container_2
+
+  postgres_container_2:
+    image: "postgres"
+    container_name: postgres_container_2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: pos-tech-db
+      POSTGRES_PASSWORD: postgres_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data
+
+volumes:
+  data:
