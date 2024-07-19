@@ -1,0 +1,95 @@
+name: Push image to Amazon ECR
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REPOSITORY: ${{ vars.MY_ECR_REPOSITORY }}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-ecr:
+    name: Push image
+    # needs: sonarcloud
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+  deploy-eks:
+    name: "Deploy pod to EKS"
+    needs: deploy-ecr
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Inject secrets
+        uses: cschleiden/replace-tokens@v1
+        with:
+          files: '["*.yml"]'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL}}
+          AWS_ACCESS_KEY_ID_B64: ${{ secrets.AWS_ACCESS_KEY_ID_B64}}
+          AWS_SECRET_ACCESS_KEY_B64: ${{ secrets.AWS_SECRET_ACCESS_KEY_B64}}
+          COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID}}
+          DEFAULT_USER_NOME: ${{ secrets.DEFAULT_USER_NOME}}
+          DEFAULT_USER_SENHA: ${{ secrets.DEFAULT_USER_SENHA}}
+          AUTENTICACAO_IMAGE: ${{ secrets.AUTENTICACAO_IMAGE}}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update KubeConfig
+        shell: bash
+        run: |
+          aws eks update-kubeconfig --name autenticacao-cluster --region us-east-1
+
+      - name: Deploy To Cluster
+        shell: bash
+        run: kubectl apply -f autenticacao.yml
+
+      - name: Update deployment image
+        shell: bash
+        run: kubectl set image deployment/autenticacao-deployment autenticacao-image=${{ secrets.AUTENTICACAO_IMAGE }} -n postech
+
+      - name: POD to rollout
+        shell: bash
+        run: kubectl rollout restart deployment/autenticacao-deployment -n postech
