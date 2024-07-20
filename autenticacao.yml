@@ -46,7 +46,7 @@ spec:
     spec:
       containers:
         - name: autenticacao-image
-          image: #{POS_TECH_DINER_CLIENTE_IMAGE}#
+          image: #{AUTENTICACAO_IMAGE}#
           ports:
             - containerPort: 3332
           envFrom:

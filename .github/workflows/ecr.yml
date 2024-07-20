@@ -77,7 +77,7 @@ jobs:
       - name: Update KubeConfig
         shell: bash
         run: |
-          aws eks update-kubeconfig --name autenticacao-cluster --region us-east-1
+          aws eks update-kubeconfig --name pos-tech-diner-cluster --region us-east-1
 
       - name: Deploy To Cluster
         shell: bash
