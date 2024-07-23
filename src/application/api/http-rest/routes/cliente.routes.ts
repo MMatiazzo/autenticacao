@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
 import { AutenticarClienteController } from '../../../../application/operation/controllers/autenticar-cliente.controller';
 
 import { ExcluirClienteDto } from 'src/core/cliente/dto/excluir-cliente.dto';
@@ -27,7 +27,7 @@ export class AutenticacaoControllerRoute {
 
   @Get('/')
   healthCheck(): any {
-    return { health: true }
+    return { health: true, node_env: process.env.NODE_ENV };
   }
 
   @Post('/cadastrar/:type')
@@ -59,7 +59,7 @@ export class AutenticacaoControllerRoute {
     return token;
   }
 
-  @Post('/deletar')
+  @Delete('/deletar')
   @HttpCode(200)
   async deletar(
     @Body() payload: ExcluirClienteDto

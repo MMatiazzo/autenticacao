@@ -2,8 +2,6 @@ version: '3'
 
 services:
   api:
-    depends_on:
-      - postgres_container_2
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,21 +10,22 @@ services:
     ports:
       - 3332:3332
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres_password@postgres_container_2:5432/pos-tech-db
-    links:
-      - postgres_container_2:postgres_container_2
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/consulta
+      - NODE_ENV=development
+    depends_on:
+      - db
+    networks:
+      - app-network
 
-  postgres_container_2:
-    image: "postgres"
-    container_name: postgres_container_2
+  db:
+    image: postgres:16
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_DB: pos-tech-db
-      POSTGRES_PASSWORD: postgres_password
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./data/pg:/var/lib/postgresql/data
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: autenticacao
+    networks:
+      - app-network
 
-volumes:
-  data:
+networks:
+  app-network:
+    driver: bridge
