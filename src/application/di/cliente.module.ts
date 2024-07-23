@@ -16,6 +16,7 @@ import { DecodificarTokenClienteUseCase } from "src/core/cliente/usecase/decodif
 import { ExcluirClienteUseCase } from "src/core/cliente/usecase/excluir-cliente/excluir-cliente.usecase";
 import { DecodificarTokenClienteController } from "../operation/controllers/decodificar-token-cliente.controller";
 import { ExcluirClienteController } from "../operation/controllers/excluir-cliente.controller";
+import { MockAuth } from "../operation/gateways/authentication/mock/authentication-mock.gateway";
 
 const persistenceProviders: Provider[] = [
   PrismaService,
@@ -31,7 +32,7 @@ const persistenceProviders: Provider[] = [
   },
   {
     provide: IAuthenticationGateway,
-    useFactory: () => new CognitoAuth(),
+    useFactory: () => process.env.NODE_ENV === 'development' ? new MockAuth() : new CognitoAuth(),
     inject: [],
   }
 ]

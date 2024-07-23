@@ -27,7 +27,7 @@ export class AutenticacaoControllerRoute {
 
   @Get('/')
   healthCheck(): any {
-    return { health: true }
+    return { health: true, node_env: process.env.NODE_ENV };
   }
 
   @Post('/cadastrar/:type')
