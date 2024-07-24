@@ -1,0 +1,308 @@
+{
+	"info": {
+		"_postman_id": "a1be4eab-935b-4c90-87b0-b9de1f37b82f",
+		"name": "hackathon",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "5216422"
+	},
+	"item": [
+		{
+			"name": "autenticacao",
+			"item": [
+				{
+					"name": "cadastrar-medico",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"crm\": \"17320408007\",\r\n    \"nome\": \"medico10\",\r\n    \"email\": \"medico10@email.com.br\",\r\n    \"senha\": \"zD)c9FM89[7+\",\r\n    \"especialidade\": \"oftalmologista\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/autenticacao/cadastrar/medico",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"autenticacao",
+								"cadastrar",
+								"medico"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "cadastrar-paciente",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cpf\": \"12184118052\",\r\n    \"nome\": \"paciente10\",\r\n    \"email\": \"paciente10@email.com.br\",\r\n    \"senha\": \"zD)c9FM89[7+\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/autenticacao/cadastrar/paciente",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"autenticacao",
+								"cadastrar",
+								"paciente"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "autenticar-medico",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"crm\": \"17320408007\",\r\n    \"senha\": \"zD)c9FM89[7+\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/autenticacao/autenticar/medico",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"autenticacao",
+								"autenticar",
+								"medico"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "autenticar-paciente",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cpf\": \"12184118052\",\r\n    \"senha\": \"zD)c9FM89[7+\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/autenticacao/autenticar/paciente",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"autenticacao",
+								"autenticar",
+								"paciente"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletar",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"medico10@email.com.br\",\r\n    \"senha\": \"zD)c9FM89[7+\",\r\n    \"type\": \"medico\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3332/autenticacao/deletar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3332",
+							"path": [
+								"autenticacao",
+								"deletar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "consulta",
+			"item": [
+				{
+					"name": "cadastrar-consulta",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id_agenda\": \"281cbd22-0255-41c4-9a71-b5f6376a87a4\",\r\n    \"crm_medico\": \"796083734119\",\r\n    \"cpf_paciente\": \"00000000000\",\r\n    \"status\": \"teste\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3334/consulta/cadastrar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3334",
+							"path": [
+								"consulta",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buscar-consulta",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3334/consulta/listar?crmOrCpf=00000000000",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3334",
+							"path": [
+								"consulta",
+								"listar"
+							],
+							"query": [
+								{
+									"key": "crmOrCpf",
+									"value": "00000000000"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "atualizar-status",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"aceita\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3334/consulta/atualizar/314f30ca-2d44-42c3-8d9e-9cd555986d17",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3334",
+							"path": [
+								"consulta",
+								"atualizar",
+								"314f30ca-2d44-42c3-8d9e-9cd555986d17"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "agenda",
+			"item": [
+				{
+					"name": "cadastrar-agenda",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"crm\": \"796083734119\",\r\n    \"horario\": \"2024-07-17T02:00:00Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3334/agenda/cadastrar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3334",
+							"path": [
+								"agenda",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "buscar-agenda",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3334/agenda/buscar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3334",
+							"path": [
+								"agenda",
+								"buscar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
