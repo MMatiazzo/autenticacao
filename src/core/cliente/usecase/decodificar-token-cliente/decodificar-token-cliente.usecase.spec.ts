@@ -1,42 +1,41 @@
 import { BadRequestException } from "@nestjs/common";
-import { DecodificarTokenClienteUseCase } from "./decodificar-token-cliente.usecase";
 import { IAuthenticationGateway } from "../../../../application/operation/gateways/authentication/Iauthentication.gateway";
+import { DecodificarTokenClienteDto } from "../../dto/decodificar-token-cliente.dto";
+import { DecodificarTokenClienteUseCase } from "./decodificar-token-cliente.usecase";
 
 describe('DecodificarTokenClienteUseCase', () => {
-  let useCase: DecodificarTokenClienteUseCase;
+  let decodificarTokenClienteUseCase: DecodificarTokenClienteUseCase;
   let authenticationGateway: jest.Mocked<IAuthenticationGateway>;
 
   beforeEach(() => {
     authenticationGateway = {
+      autenticar: jest.fn(),
       decodificarToken: jest.fn(),
-    } as unknown as jest.Mocked<IAuthenticationGateway>;
+      deletar: jest.fn(),
+      registrar: jest.fn(),
+    } as jest.Mocked<IAuthenticationGateway>;
 
-    useCase = new DecodificarTokenClienteUseCase(authenticationGateway);
+    decodificarTokenClienteUseCase = new DecodificarTokenClienteUseCase(authenticationGateway);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  describe('execute', () => {
+    it('deve lançar BadRequestException se o cliente não for encontrado', async () => {
+      const dto: DecodificarTokenClienteDto = { acessToken: 'invalid-token' };
+      authenticationGateway.decodificarToken.mockResolvedValue(null);
 
-  it('Deve ser possível decodificar o token e retornar o cliente', async () => {
-    const fakeToken = 'fakeToken';
-    const fakeCliente = { id: 1, name: 'John Doe' };
+      await expect(decodificarTokenClienteUseCase.execute(dto)).rejects.toThrow(BadRequestException);
+      expect(authenticationGateway.decodificarToken).toHaveBeenCalledWith(dto.acessToken);
+    });
 
-    authenticationGateway.decodificarToken.mockResolvedValue(fakeCliente);
+    it('deve retornar o cliente se o token for válido', async () => {
+      const dto: DecodificarTokenClienteDto = { acessToken: 'valid-token' };
+      const cliente = { nome: 'Test Cliente' };
+      authenticationGateway.decodificarToken.mockResolvedValue(cliente);
 
-    const result = await useCase.execute({ acessToken: fakeToken });
+      const result = await decodificarTokenClienteUseCase.execute(dto);
 
-    expect(result).toEqual(fakeCliente);
-    expect(authenticationGateway.decodificarToken).toHaveBeenCalledWith(fakeToken);
-  });
-
-  it('Deve retornar a exceção BadRequestException quando o cliente for null', async () => {
-    const fakeToken = 'fakeToken';
-
-    authenticationGateway.decodificarToken.mockResolvedValue(null);
-
-    await expect(useCase.execute({ acessToken: fakeToken }))
-      .rejects.toThrow(BadRequestException);
-    expect(authenticationGateway.decodificarToken).toHaveBeenCalledWith(fakeToken);
+      expect(result).toBe(cliente);
+      expect(authenticationGateway.decodificarToken).toHaveBeenCalledWith(dto.acessToken);
+    });
   });
 });

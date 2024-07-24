@@ -42,21 +42,22 @@ describe('AutenticacaoControllerRoute', () => {
     expect(controller).toBeDefined();
   });
 
-  describe('healthCheck', () => {
-    it('Deve retornar o status de saude', () => {
-      const result = controller.healthCheck();
-      expect(result).toEqual({ health: true });
-    });
-  });
-
   describe('cadastrar', () => {
     it('Deve chamar o controller e retornar corretamente o token', async () => {
-      const payload: AutenticaClienteDto = { autenticar: false, cpf: '000000000' };
-      const mockToken = { token: 'mock-token' };
+      const payload: AutenticaClienteDto = {
+        email: 'test@example.com',
+        cpf: '12345678900',
+        senha: 'password',
+        type: 'paciente',
+        crm: null,
+        autenticar: false,
+        especialidade: null,
+        nome: 'nome'
+      }; const mockToken = { token: 'mock-token' };
 
       jest.spyOn(cadastrarClienteController, 'handle').mockResolvedValue(mockToken);
 
-      const result = await controller.cadastrar(payload);
+      const result = await controller.cadastrar(payload, { type: 'paciente' });
 
       expect(cadastrarClienteController.handle).toHaveBeenCalledWith(payload);
       expect(result).toEqual(mockToken);
@@ -65,12 +66,20 @@ describe('AutenticacaoControllerRoute', () => {
 
   describe('autenticar', () => {
     it('deve chamar o controller e autenticar', async () => {
-      const payload: AutenticaClienteDto = { autenticar: false, cpf: '000000000' };
-      const mockToken = { token: 'mock-token' };
+      const payload: AutenticaClienteDto = {
+        email: 'test@example.com',
+        cpf: '12345678900',
+        senha: 'password',
+        type: 'paciente',
+        crm: null,
+        autenticar: false,
+        especialidade: null,
+        nome: 'nome'
+      }; const mockToken = { token: 'mock-token' };
 
       jest.spyOn(autenticarClienteController, 'handle').mockResolvedValue(mockToken);
 
-      const result = await controller.autenticar(payload);
+      const result = await controller.autenticar(payload, { type: 'paciente' });
 
       expect(autenticarClienteController.handle).toHaveBeenCalledWith(payload);
       expect(result).toEqual(mockToken);

@@ -1,51 +1,58 @@
-// cadastrar-cliente.controller.spec.ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { CadastrarClienteController } from './cadastrar-cliente.controller';
-import { CadastrarClienteUseCase } from '../../../core/cliente/usecase/cadastrar-cliente/cadastrar-cliente.usecase';
-import { AutenticaClienteDto } from '../../../core/cliente/dto/autentica-cliente.dto';
-
-jest.mock('../../../core/cliente/usecase/cadastrar-cliente/cadastrar-cliente.usecase');
+import { CadastrarClienteController } from "./cadastrar-cliente.controller";
+import { AutenticaClienteDto } from "../../../core/cliente/dto/autentica-cliente.dto";
+import { CadastrarClienteUseCase } from "../../../core/cliente/usecase/cadastrar-cliente/cadastrar-cliente.usecase";
+import { IAuthenticationGateway } from "../gateways/authentication/Iauthentication.gateway";
+import { IClienteGateway } from "../gateways/cliente/Icliente.gateway";
 
 describe('CadastrarClienteController', () => {
-  let controller: CadastrarClienteController;
+  let cadastrarClienteController: CadastrarClienteController;
   let cadastrarClienteUseCase: CadastrarClienteUseCase;
+  let executeMock: jest.Mock;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [CadastrarClienteController],
-      providers: [
-        CadastrarClienteUseCase,
-      ],
-    }).compile();
+  beforeEach(() => {
+    const clienteGateway: jest.Mocked<IClienteGateway> = {
+      getCliente: jest.fn(),
+      cadastrarCliente: jest.fn(),
+      excluirCliente: jest.fn(),
+    };
 
-    controller = module.get<CadastrarClienteController>(CadastrarClienteController);
-    cadastrarClienteUseCase = module.get<CadastrarClienteUseCase>(CadastrarClienteUseCase);
-  });
+    const authenticationGateway: jest.Mocked<IAuthenticationGateway> = {
+      autenticar: jest.fn(),
+      decodificarToken: jest.fn(),
+      deletar: jest.fn(),
+      registrar: jest.fn(),
+    };
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+    cadastrarClienteUseCase = new CadastrarClienteUseCase(clienteGateway, authenticationGateway);
+    executeMock = jest.fn();
+    cadastrarClienteUseCase.execute = executeMock;
+
+    cadastrarClienteController = new CadastrarClienteController(cadastrarClienteUseCase);
   });
 
   describe('handle', () => {
-    it('Deve retornar a resposta correta quando chamar o CadastrarClienteUsecase.execute', async () => {
-      const payload: AutenticaClienteDto = { autenticar: false, cpf: '000000000', };
-      const mockResponse = { success: true };
+    it('deve retornar a resposta do use case quando executado com sucesso', async () => {
+      const payload: AutenticaClienteDto = {
+        nome: 'Test', email: 'test@example.com', cpf: '12345678900', senha: 'password', type: 'paciente', crm: null, especialidade: null, autenticar: true
+      };
+      const response = { message: 'Cliente cadastrado com sucesso' };
+      executeMock.mockResolvedValue(response);
 
-      jest.spyOn(cadastrarClienteUseCase, 'execute').mockResolvedValue(mockResponse);
+      const result = await cadastrarClienteController.handle(payload);
 
-      const result = await controller.handle(payload);
-
-      expect(cadastrarClienteUseCase.execute).toHaveBeenCalledWith(payload);
-      expect(result).toEqual(mockResponse);
+      expect(result).toBe(response);
+      expect(executeMock).toHaveBeenCalledWith(payload);
     });
 
-    it('Deve gerar uma exeção caso não consiga cadastrar um usuário', async () => {
-      const payload: AutenticaClienteDto = { autenticar: true, cpf: '000000000' };
-      const mockError = new Error('Registration failed');
+    it('deve lançar uma exceção quando o use case lançar uma exceção', async () => {
+      const payload: AutenticaClienteDto = {
+        nome: 'Test', email: 'test@example.com', cpf: '12345678900', senha: 'password', type: 'paciente', crm: null, especialidade: null, autenticar: true
+      };
+      const error = new Error('Erro ao cadastrar cliente');
+      executeMock.mockRejectedValue(error);
 
-      jest.spyOn(cadastrarClienteUseCase, 'execute').mockRejectedValue(mockError);
-
-      await expect(controller.handle(payload)).rejects.toThrow(mockError);
+      await expect(cadastrarClienteController.handle(payload)).rejects.toThrow(error);
+      expect(executeMock).toHaveBeenCalledWith(payload);
     });
   });
 });
