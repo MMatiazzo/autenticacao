@@ -1,7 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { IClienteRepository } from "./Icliente.repository";
-import { Medico, Paciente } from "@prisma/client";
+import { Medico } from "src/core/cliente/entity/medico.entity";
+import { Paciente } from "src/core/cliente/entity/paciente.entity";
 
 @Injectable()
 export class ClientePostgresRepository implements IClienteRepository {

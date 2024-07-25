@@ -1,8 +1,6 @@
-import { Medico, Paciente } from "@prisma/client";
+import { Medico } from "src/core/cliente/entity/medico.entity";
+import { Paciente } from "src/core/cliente/entity/paciente.entity";
 
-/**
- * Interface para Cliente Repository
- */
 export interface IClienteRepository {
   cadastrarMedico(cliente: Medico): Promise<Medico>;
   cadastrarPaciente(cliente: Paciente): Promise<Paciente>;
