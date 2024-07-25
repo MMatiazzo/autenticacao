@@ -1,7 +1,8 @@
 import { Inject } from "@nestjs/common";
-import { Medico, Paciente } from "@prisma/client";
 import { IClienteRepository } from "../../../../infrastructure/persistence/repositories/Icliente.repository";
 import { IClienteGateway } from "./Icliente.gateway";
+import { Paciente } from "src/core/cliente/entity/paciente.entity";
+import { Medico } from "src/core/cliente/entity/medico.entity";
 
 export class ClienteGateway implements IClienteGateway {
 

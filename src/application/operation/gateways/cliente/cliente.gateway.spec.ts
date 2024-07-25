@@ -1,70 +1,75 @@
-// cliente.gateway.spec.ts
-import { Test, TestingModule } from '@nestjs/testing';
-import { ClienteGateway } from './cliente.gateway';
-import { IClienteRepository } from '../../../../infrastructure/persistence/repositories/Icliente.repository';
-import { Cliente } from '../../../../core/cliente/entity/cliente.entity';
+import { ClienteGateway } from "./cliente.gateway";
+import { IClienteRepository } from "../../../../infrastructure/persistence/repositories/Icliente.repository";
+import { Medico } from "src/core/cliente/entity/medico.entity";
+import { Paciente } from "src/core/cliente/entity/paciente.entity";
 
 describe('ClienteGateway', () => {
   let clienteGateway: ClienteGateway;
-  let clienteRepository: IClienteRepository;
+  let clienteRepository: jest.Mocked<IClienteRepository>;
 
-  const mockClienteRepository = {
-    cadastrar: jest.fn(),
-    getCliente: jest.fn()
-  };
+  beforeEach(() => {
+    clienteRepository = {
+      cadastrarMedico: jest.fn(),
+      cadastrarPaciente: jest.fn(),
+      getMedico: jest.fn(),
+      getPaciente: jest.fn(),
+      excluirCliente: jest.fn(),
+      getCliente: jest.fn(),
+    } as jest.Mocked<IClienteRepository>;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        ClienteGateway,
-        { provide: IClienteRepository, useValue: mockClienteRepository }
-      ]
-    }).compile();
-
-    clienteGateway = module.get<ClienteGateway>(ClienteGateway);
-    clienteRepository = module.get<IClienteRepository>(IClienteRepository);
-  });
-
-  it('should be defined', () => {
-    expect(clienteGateway).toBeDefined();
+    clienteGateway = new ClienteGateway(clienteRepository);
   });
 
   describe('cadastrarCliente', () => {
-    it('Deve chamar clienteRepository.cadastrar com os parametros corretos e retornar o resultado', async () => {
-      const cliente: Cliente = { cpf: '507.297.600-90', email: 'email@email.com', nome: 'nome' };
-      const savedCliente: Cliente = { cpf: '507.297.600-90', email: 'email@email.com', nome: 'nome' };
+    it('deve cadastrar um medico corretamente', async () => {
+      const medico: Medico = { nome: 'Dr. Teste', email: 'medico@example.com', crm: 'CRM1234', especialidade: 'Cardiologia' };
+      clienteRepository.cadastrarMedico.mockResolvedValue(medico);
 
-      mockClienteRepository.cadastrar.mockResolvedValue(savedCliente);
+      const result = await clienteGateway.cadastrarCliente(medico, 'medico');
 
-      const result = await clienteGateway.cadastrarCliente(cliente);
+      expect(result).toBe(medico);
+      expect(clienteRepository.cadastrarMedico).toHaveBeenCalledWith(medico);
+    });
 
-      expect(mockClienteRepository.cadastrar).toHaveBeenCalledWith(cliente);
-      expect(result).toEqual(savedCliente);
+    it('deve cadastrar um paciente corretamente', async () => {
+      const paciente: Paciente = { nome: 'Paciente Teste', email: 'paciente@example.com', cpf: '12345678900' };
+      clienteRepository.cadastrarPaciente.mockResolvedValue(paciente);
+
+      const result = await clienteGateway.cadastrarCliente(paciente, 'paciente');
+
+      expect(result).toBe(paciente);
+      expect(clienteRepository.cadastrarPaciente).toHaveBeenCalledWith(paciente);
     });
   });
 
   describe('getCliente', () => {
-    it('Deve retornar o primeiro cliente encontrado', async () => {
-      const cpfOrEmail = 'test@example.com';
-      const clientes: Cliente[] = [{ cpf: '507.297.600-90', email: 'email@email.com', nome: 'nome' }];
+    it('deve retornar um medico pelo autenticador', async () => {
+      const medico: Medico = { nome: 'Dr. Teste', email: 'medico@example.com', crm: 'CRM1234', especialidade: 'Cardiologia' };
+      clienteRepository.getMedico.mockResolvedValue([medico]);
 
-      mockClienteRepository.getCliente.mockResolvedValue(clientes);
+      const result = await clienteGateway.getCliente('CRM1234', 'medico');
 
-      const result = await clienteGateway.getCliente(cpfOrEmail);
-
-      expect(mockClienteRepository.getCliente).toHaveBeenCalledWith(cpfOrEmail);
-      expect(result).toEqual(clientes[0]);
+      expect(result).toBe(medico);
+      expect(clienteRepository.getMedico).toHaveBeenCalledWith('CRM1234');
     });
 
-    it('Deve retornar null caso não encontre nenhum cliente', async () => {
-      const cpfOrEmail = 'nonexistent@example.com';
+    it('deve retornar um paciente pelo autenticador', async () => {
+      const paciente: Paciente = { nome: 'Paciente Teste', email: 'paciente@example.com', cpf: '12345678900' };
+      clienteRepository.getPaciente.mockResolvedValue([paciente]);
 
-      mockClienteRepository.getCliente.mockResolvedValue([]);
+      const result = await clienteGateway.getCliente('12345678900', 'paciente');
 
-      const result = await clienteGateway.getCliente(cpfOrEmail);
+      expect(result).toBe(paciente);
+      expect(clienteRepository.getPaciente).toHaveBeenCalledWith('12345678900');
+    });
+  });
 
-      expect(mockClienteRepository.getCliente).toHaveBeenCalledWith(cpfOrEmail);
-      expect(result).toBeNull();
+  describe('excluirCliente', () => {
+    it('deve excluir um cliente corretamente', async () => {
+      const email = 'cliente@example.com';
+      await clienteGateway.excluirCliente(email, 'paciente');
+
+      expect(clienteRepository.excluirCliente).toHaveBeenCalledWith(email, 'paciente');
     });
   });
 });

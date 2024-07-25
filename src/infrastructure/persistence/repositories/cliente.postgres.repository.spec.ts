@@ -1,69 +1,126 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { ClientePostgresRepository } from './cliente.postgres.repository';
-// import { PrismaService } from '../prisma/prisma.service';
-// import { Cliente } from 'src/core/cliente/entity/cliente.entity';
+import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from "../prisma/prisma.service";
+import { ClientePostgresRepository } from './cliente.postgres.repository';
+import { Medico } from 'src/core/cliente/entity/medico.entity';
+import { Paciente } from 'src/core/cliente/entity/paciente.entity';
 
-// describe('ClientePostgresRepository', () => {
-//     let repository: ClientePostgresRepository;
-//     let prismaService: PrismaService;
+describe('ClientePostgresRepository', () => {
+  let clientePostgresRepository: ClientePostgresRepository;
+  let prismaService: jest.Mocked<PrismaService>;
 
-//     beforeEach(async () => {
-//         const module: TestingModule = await Test.createTestingModule({
-//             providers: [
-//                 ClientePostgresRepository,
-//                 {
-//                     provide: PrismaService,
-//                     useValue: {
-//                         cliente: {
-//                             create: jest.fn(),
-//                             findMany: jest.fn(),
-//                         },
-//                     },
-//                 },
-//             ],
-//         }).compile();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ClientePostgresRepository,
+        {
+          provide: PrismaService,
+          useValue: {
+            medico: {
+              create: jest.fn(),
+              findMany: jest.fn(),
+              delete: jest.fn(),
+            },
+            paciente: {
+              create: jest.fn(),
+              findMany: jest.fn(),
+              delete: jest.fn(),
+            },
+          },
+        },
+      ],
+    }).compile();
 
-//         repository = module.get<ClientePostgresRepository>(ClientePostgresRepository);
-//         prismaService = module.get<PrismaService>(PrismaService);
-//     });
+    clientePostgresRepository = module.get<ClientePostgresRepository>(ClientePostgresRepository);
+    prismaService = module.get<PrismaService>(PrismaService) as jest.Mocked<PrismaService>;
+  });
 
-//     afterEach(() => {
-//         jest.clearAllMocks();
-//     });
+  describe('cadastrarMedico', () => {
+    it('deve cadastrar um medico corretamente', async () => {
+      const medico: Medico = { nome: 'Dr. Teste', email: 'medico@example.com', crm: 'CRM1234', especialidade: 'Cardiologia' };
+      (prismaService.medico.create as jest.Mock).mockResolvedValue(medico);
 
-//     describe('cadastrar', () => {
-//         it('Deve ser possível criar um novo cliente', async () => {
-//             const mockCliente: Cliente = { cpf: "123", email: "test@test.com", nome: "test" };
-//             const mockCreatedCliente: Cliente = { cpf: "123", email: "test@test.com", nome: "test" };
+      const result = await clientePostgresRepository.cadastrarMedico(medico);
 
-//             (prismaService.cliente.create as jest.Mock).mockResolvedValue(mockCreatedCliente);
+      expect(result).toBe(medico);
+      expect(prismaService.medico.create).toHaveBeenCalledWith({ data: medico });
+    });
+  });
 
-//             const result = await repository.cadastrar(mockCliente);
+  describe('cadastrarPaciente', () => {
+    it('deve cadastrar um paciente corretamente', async () => {
+      const paciente: Paciente = { nome: 'Paciente Teste', email: 'paciente@example.com', cpf: '12345678900' };
+      (prismaService.paciente.create as jest.Mock).mockResolvedValue(paciente);
 
-//             expect(prismaService.cliente.create).toHaveBeenCalledWith({ data: mockCliente });
-//             expect(result).toEqual(mockCreatedCliente);
-//         });
-//     });
+      const result = await clientePostgresRepository.cadastrarPaciente(paciente);
 
-//     describe('getCliente', () => {
-//         it('Deve ser possível retornar um cliente por email ou cpf', async () => {
-//             const mockEmailOrCpf = 'test@test.com';
-//             const mockClients: Cliente[] = [{ cpf: "123", email: "test@test.com", nome: "test" }];
+      expect(result).toBe(paciente);
+      expect(prismaService.paciente.create).toHaveBeenCalledWith({ data: paciente });
+    });
+  });
 
-//             (prismaService.cliente.findMany as jest.Mock).mockResolvedValue(mockClients);
+  describe('getCliente', () => {
+    it('deve retornar um paciente pelo CPF ou email', async () => {
+      const paciente: Paciente = { nome: 'Paciente Teste', email: 'paciente@example.com', cpf: '12345678900' };
+      (prismaService.paciente.findMany as jest.Mock).mockResolvedValue([paciente]);
 
-//             const result = await repository.getCliente(mockEmailOrCpf);
+      const result = await clientePostgresRepository.getCliente('12345678900');
 
-//             expect(prismaService.cliente.findMany).toHaveBeenCalledWith({
-//                 where: {
-//                     OR: [
-//                         { email: mockEmailOrCpf },
-//                         { cpf: mockEmailOrCpf },
-//                     ],
-//                 },
-//             });
-//             expect(result).toEqual(mockClients);
-//         });
+      expect(result).toEqual([paciente]);
+      expect(prismaService.paciente.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { email: '12345678900' },
+            { cpf: '12345678900' },
+          ],
+        },
+      });
+    });
+  });
 
-//     });
-// });
+  describe('getMedico', () => {
+    it('deve retornar um medico pelo CRM', async () => {
+      const medico: Medico = { nome: 'Dr. Teste', email: 'medico@example.com', crm: 'CRM1234', especialidade: 'Cardiologia' };
+      (prismaService.medico.findMany as jest.Mock).mockResolvedValue([medico]);
+
+      const result = await clientePostgresRepository.getMedico('CRM1234');
+
+      expect(result).toEqual([medico]);
+      expect(prismaService.medico.findMany).toHaveBeenCalledWith({ where: { crm: 'CRM1234' } });
+    });
+  });
+
+  describe('getPaciente', () => {
+    it('deve retornar um paciente pelo CPF ou email', async () => {
+      const paciente: Paciente = { nome: 'Paciente Teste', email: 'paciente@example.com', cpf: '12345678900' };
+      (prismaService.paciente.findMany as jest.Mock).mockResolvedValue([paciente]);
+
+      const result = await clientePostgresRepository.getPaciente('12345678900');
+
+      expect(result).toEqual([paciente]);
+      expect(prismaService.paciente.findMany).toHaveBeenCalledWith({
+        where: {
+          OR: [
+            { email: '12345678900' },
+            { cpf: '12345678900' },
+          ],
+        },
+      });
+    });
+  });
+
+  describe('excluirCliente', () => {
+    it('deve excluir um medico pelo email', async () => {
+      const email = 'medico@example.com';
+      await clientePostgresRepository.excluirCliente(email, 'medico');
+
+      expect(prismaService.medico.delete).toHaveBeenCalledWith({ where: { email } });
+    });
+
+    it('deve excluir um paciente pelo email', async () => {
+      const email = 'paciente@example.com';
+      await clientePostgresRepository.excluirCliente(email, 'paciente');
+
+      expect(prismaService.paciente.delete).toHaveBeenCalledWith({ where: { email } });
+    });
+  });
+});

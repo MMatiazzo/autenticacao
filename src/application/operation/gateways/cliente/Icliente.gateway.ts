@@ -1,4 +1,4 @@
-import { Medico } from "@prisma/client";
+import { Medico } from "src/core/cliente/entity/medico.entity";
 import { Paciente } from "src/core/cliente/entity/paciente.entity";
 
 export interface IClienteGateway {

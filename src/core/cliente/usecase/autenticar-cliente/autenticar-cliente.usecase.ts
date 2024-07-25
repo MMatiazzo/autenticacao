@@ -12,7 +12,7 @@ export class AutenticarClienteUseCase {
     private autenticationGateway: IAuthenticationGateway
   ) { }
 
-  async execute({ nome, email, cpf, senha, type, crm }: AutenticaClienteDto): Promise<any> {
+  async execute({ email, cpf, senha, type, crm }: AutenticaClienteDto): Promise<any> {
 
     let autenticador = email;
     if (type === 'paciente') {
@@ -20,13 +20,6 @@ export class AutenticarClienteUseCase {
     } else if (type === 'medico') {
       autenticador = crm
     }
-
-    // if (((!email && !cpf) || !senha) && (!crm || !senha)) {
-    //   throw new BadRequestException('Não podemos criar um usuario sem email, cpf e/ou senha não estão preenchidos');
-    // }
-
-    console.log('autenticador => ', autenticador);
-    console.log('type => ', type);
 
     const cliente = await this.clienteGateway.getCliente(autenticador, type);
 
