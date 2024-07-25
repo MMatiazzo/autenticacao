@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from "../prisma/prisma.service";
-import { Medico, Paciente } from "@prisma/client";
 import { ClientePostgresRepository } from './cliente.postgres.repository';
+import { Medico } from 'src/core/cliente/entity/medico.entity';
+import { Paciente } from 'src/core/cliente/entity/paciente.entity';
 
 describe('ClientePostgresRepository', () => {
   let clientePostgresRepository: ClientePostgresRepository;
