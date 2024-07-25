@@ -14,6 +14,19 @@ permissions:
   contents: read
 
 jobs:
+  run-tests:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - run: npm ci
+
+      - name: Run jest tests
+        run: npm run test:cov       
+
   deploy-ecr:
     name: Push image
     # needs: sonarcloud
