@@ -1,6 +1,7 @@
 import { ClienteGateway } from "./cliente.gateway";
 import { IClienteRepository } from "../../../../infrastructure/persistence/repositories/Icliente.repository";
-import { Medico, Paciente } from "@prisma/client";
+import { Medico } from "src/core/cliente/entity/medico.entity";
+import { Paciente } from "src/core/cliente/entity/paciente.entity";
 
 describe('ClienteGateway', () => {
   let clienteGateway: ClienteGateway;
