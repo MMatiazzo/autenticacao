@@ -3,7 +3,7 @@
 ### FIAP - Hackathon 2024 - SOAT4 - Grupo 11 
 - Alexandre Mikio Kimura Fukano - **RM 351127** (alexandremkimura@hotmail.com)
 - Lucas Proença Renó - **RM 351351** (lucasreno9@gmail.com)
-- Matheus Agusuto Leme Matiazzo - **RM 351128** (mathmatiazzo@gmail.com)
+- Matheus Augusto Leme Matiazzo - **RM 351128** (mathmatiazzo@gmail.com)
 - Vinicius Carloto Carnelocce - **RM 351126** (viniciuscarloto@gmail.com)
 
 ---
